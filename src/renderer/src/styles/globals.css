@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-background: #0b0f1a;
+  --color-surface: #141a2a;
+  --color-surface-2: #1c2438;
+  --color-border: #283149;
+  --color-foreground: #e6eaf2;
+  --color-muted: #8a93a8;
+  --color-primary: #4f8cff;
+  --color-success: #2fb87a;
+  --color-warning: #e0a83c;
+  --color-danger: #e0556b;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family:
+    'Noto Sans Bengali', 'Hind Siliguri', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
