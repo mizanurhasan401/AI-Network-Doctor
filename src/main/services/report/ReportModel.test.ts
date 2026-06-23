@@ -4,9 +4,9 @@ import { buildReportModel } from './ReportModel'
 
 describe('buildReportModel', () => {
   it('produces the eight required Bangla sections in order', () => {
-    const model = buildReportModel({ snapshot: makeSnapshot(), format: 'txt' })
+    const model = buildReportModel({ snapshot: makeSnapshot(), format: 'txt', language: 'bn' })
     expect(model.sections).toHaveLength(8)
-    expect(model.sections.map((s) => s.titleBn)).toEqual([
+    expect(model.sections.map((s) => s.title)).toEqual([
       '১. রিপোর্ট সারাংশ',
       '২. নেটওয়ার্ক তথ্য',
       '৩. পরীক্ষার ফলাফল',
@@ -15,6 +15,20 @@ describe('buildReportModel', () => {
       '৬. করণীয় সমাধান',
       '৭. নেটওয়ার্ক স্বাস্থ্য স্কোর',
       '৮. প্রস্তুতের সময়'
+    ])
+  })
+
+  it('produces English sections when language is English (default)', () => {
+    const model = buildReportModel({ snapshot: makeSnapshot(), format: 'txt' })
+    expect(model.sections.map((s) => s.title)).toEqual([
+      '1. Report Summary',
+      '2. Network Information',
+      '3. Test Results',
+      '4. Detected Issues',
+      '5. AI Analysis',
+      '6. Recommended Actions',
+      '7. Network Health Score',
+      '8. Generated At'
     ])
   })
 

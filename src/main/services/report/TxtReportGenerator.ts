@@ -8,13 +8,13 @@ export class TxtReportGenerator implements IReportGenerator {
 
   async render(model: ReportModel): Promise<Uint8Array> {
     const lines: string[] = []
-    lines.push(model.titleBn)
+    lines.push(model.title)
     lines.push('='.repeat(60))
-    lines.push(`প্রস্তুতের সময়: ${model.generatedAtBn}`)
+    lines.push(model.generatedAtLine)
     lines.push('')
 
     for (const section of model.sections) {
-      lines.push(section.titleBn)
+      lines.push(section.title)
       lines.push('-'.repeat(40))
       for (const line of section.lines) lines.push(line)
       lines.push('')

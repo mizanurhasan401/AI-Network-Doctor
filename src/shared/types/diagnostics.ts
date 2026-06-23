@@ -106,11 +106,16 @@ export interface SpeedTestResult {
   readonly error: string | null
 }
 
-/** A problem the engine detected from raw measurements. Text is Bangla. */
+/**
+ * A problem the engine detected from raw measurements. Language-neutral: `id` is
+ * a stable key into the i18n catalog (`issue.<id>.title` / `.desc`) and `params`
+ * carries the measured values to interpolate — so the same issue renders in any
+ * language without re-running diagnostics.
+ */
 export interface DetectedIssue {
   readonly id: string
   readonly area: 'connectivity' | 'dns' | 'packetLoss' | 'speed' | 'latency' | 'system'
   readonly severity: Severity
-  readonly titleBn: string
-  readonly descriptionBn: string
+  /** Values interpolated into the issue's i18n templates (e.g. `{lossPercent}`). */
+  readonly params?: Record<string, string | number>
 }

@@ -5,35 +5,35 @@ import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Progress } from '../../components/ui/progress'
 import { useDiagnosticStore } from '../../store/diagnosticStore'
-import { GRADE_LABEL_BN, gradeTone, scoreTone } from '../health/healthPresentation'
+import { useT } from '../../i18n/useT'
+import { gradeTone, scoreTone } from '../health/healthPresentation'
 
 export default function DashboardPage(): JSX.Element {
   const snapshot = useDiagnosticStore((s) => s.snapshot)
   const navigate = useNavigate()
+  const t = useT()
 
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">ড্যাশবোর্ড</h1>
-          <p className="text-sm text-muted">নেটওয়ার্ক স্বাস্থ্যের সারসংক্ষেপ</p>
+          <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
+          <p className="text-sm text-muted">{t('dashboard.subtitle')}</p>
         </div>
-        <Button onClick={() => navigate('/diagnostics')}>ডায়াগনস্টিক চালান</Button>
+        <Button onClick={() => navigate('/diagnostics')}>{t('dashboard.runButton')}</Button>
       </header>
 
       {!snapshot ? (
         <Card className="text-center">
-          <p className="text-muted">
-            এখনো কোনো ডায়াগনস্টিক চালানো হয়নি। শুরু করতে “ডায়াগনস্টিক চালান” ক্লিক করুন।
-          </p>
+          <p className="text-muted">{t('dashboard.empty')}</p>
         </Card>
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardTitle>নেটওয়ার্ক স্বাস্থ্য স্কোর</CardTitle>
+              <CardTitle>{t('dashboard.healthScore')}</CardTitle>
               <Badge tone={gradeTone(snapshot.health.grade)}>
-                {GRADE_LABEL_BN[snapshot.health.grade]}
+                {t(`grade.${snapshot.health.grade}`)}
               </Badge>
             </CardHeader>
             <div className="flex items-end gap-4">
@@ -50,22 +50,22 @@ export default function DashboardPage(): JSX.Element {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatusCard
               icon={<Globe size={18} />}
-              title="ইন্টারনেট"
+              title={t('status.internet')}
               ok={snapshot.connectivity.internet.alive}
             />
             <StatusCard
               icon={<Router size={18} />}
-              title="রাউটার"
+              title={t('status.router')}
               ok={snapshot.connectivity.gateway.alive}
             />
             <StatusCard
               icon={<ShieldCheck size={18} />}
-              title="HTTPS"
+              title={t('status.https')}
               ok={snapshot.connectivity.https.ok}
             />
             <StatusCard
               icon={<Wifi size={18} />}
-              title="DNS"
+              title={t('status.dns')}
               ok={snapshot.dns.servers.some((d) => d.reachable)}
             />
           </div>
@@ -84,6 +84,7 @@ function StatusCard({
   title: string
   ok: boolean
 }): JSX.Element {
+  const t = useT()
   return (
     <Card>
       <CardHeader>
@@ -92,7 +93,7 @@ function StatusCard({
           {title}
         </CardTitle>
       </CardHeader>
-      <Badge tone={ok ? 'success' : 'danger'}>{ok ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</Badge>
+      <Badge tone={ok ? 'success' : 'danger'}>{ok ? t('status.active') : t('status.inactive')}</Badge>
     </Card>
   )
 }

@@ -1,22 +1,26 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { Activity, LayoutDashboard, Stethoscope } from 'lucide-react'
+import type { MessageKey } from '@shared/i18n'
 import { cn } from '../lib/utils'
+import { useT } from '../i18n/useT'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
 
-const NAV = [
-  { to: '/', label: 'ড্যাশবোর্ড', icon: LayoutDashboard, end: true },
-  { to: '/diagnostics', label: 'ডায়াগনস্টিক', icon: Stethoscope, end: false }
-] as const
+const NAV: readonly { to: string; labelKey: MessageKey; icon: typeof LayoutDashboard; end: boolean }[] = [
+  { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, end: true },
+  { to: '/diagnostics', labelKey: 'nav.diagnostics', icon: Stethoscope, end: false }
+]
 
 export function Layout(): JSX.Element {
+  const t = useT()
   return (
     <div className="flex h-full">
       <aside className="flex w-60 flex-col border-r border-border bg-surface p-4">
         <div className="mb-8 flex items-center gap-2 px-2">
           <Activity className="text-primary" size={22} />
-          <span className="text-lg font-bold">NetDoctor AI</span>
+          <span className="text-lg font-bold">{t('app.name')}</span>
         </div>
         <nav className="flex flex-col gap-1">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+          {NAV.map(({ to, labelKey, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -29,11 +33,14 @@ export function Layout(): JSX.Element {
               }
             >
               <Icon size={18} />
-              {label}
+              {t(labelKey)}
             </NavLink>
           ))}
         </nav>
-        <p className="mt-auto px-2 text-xs text-muted">স্থানীয় ডায়াগনস্টিক · কোনো ডেটা সংরক্ষিত হয় না</p>
+        <div className="mt-auto space-y-3">
+          <LanguageSwitcher />
+          <p className="px-2 text-xs text-muted">{t('app.footer')}</p>
+        </div>
       </aside>
       <main className="flex-1 overflow-y-auto p-8">
         <Outlet />

@@ -33,8 +33,8 @@ export class PdfReportGenerator implements IReportGenerator {
     const font = await this.loadFont(doc)
     const layout = new PdfLayout(doc, font)
 
-    layout.text(model.titleBn, TITLE_SIZE)
-    layout.text(`প্রস্তুতের সময়: ${model.generatedAtBn}`, BODY_SIZE)
+    layout.text(model.title, TITLE_SIZE)
+    layout.text(model.generatedAtLine, BODY_SIZE)
     layout.gap()
 
     for (const section of model.sections) this.renderSection(layout, section)
@@ -43,7 +43,7 @@ export class PdfReportGenerator implements IReportGenerator {
   }
 
   private renderSection(layout: PdfLayout, section: ReportSection): void {
-    layout.text(section.titleBn, HEADING_SIZE)
+    layout.text(section.title, HEADING_SIZE)
     for (const line of section.lines) layout.text(line, BODY_SIZE)
     layout.gap()
   }

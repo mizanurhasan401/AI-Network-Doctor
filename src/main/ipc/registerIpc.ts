@@ -4,6 +4,7 @@ import { IpcChannel } from '@shared/ipc/contract'
 import type { AnalyzeRequest, ProgressEvent } from '@shared/ipc/contract'
 import type { ReportFormat, ReportRequest } from '@shared/types/report'
 import { ValidationError } from '@shared/errors/errors'
+import { DEFAULT_LANGUAGE, translate } from '@shared/i18n'
 import {
   analyzeRequestSchema,
   reportRequestSchema,
@@ -62,7 +63,7 @@ export function registerIpcHandlers(container: AppContainer): void {
   registerInvoke(IpcChannel.AnalyzeWithAi, analyzeRequestSchema, (raw) => {
     // Shape is runtime-validated above; the snapshot is our own round-tripped data.
     const req = raw as unknown as AnalyzeRequest
-    return container.ai.analyze(req.snapshot, req.config)
+    return container.ai.analyze(req.snapshot, req.config, req.language)
   })
 
   registerInvoke(IpcChannel.ExportReport, reportRequestSchema, async (raw, event) => {
@@ -74,7 +75,7 @@ export function registerIpcHandlers(container: AppContainer): void {
       filters: [REPORT_FILTERS[req.format]]
     })
     if (canceled || !filePath) {
-      throw new ValidationError('রিপোর্ট সংরক্ষণ বাতিল করা হয়েছে।')
+      throw new ValidationError(translate(req.language ?? DEFAULT_LANGUAGE, 'report.saveCancelled'))
     }
     await writeFile(filePath, bytes)
     return { format: req.format, filePath, bytes: bytes.byteLength }

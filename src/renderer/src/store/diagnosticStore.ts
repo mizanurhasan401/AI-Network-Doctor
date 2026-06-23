@@ -16,6 +16,7 @@ interface DiagnosticState {
 
   setSnapshot(snapshot: DiagnosticSnapshot): void
   setRecommendation(recommendation: AiRecommendation): void
+  clearRecommendation(): void
   setProgress(progress: ProgressEvent | null): void
   setAiConfig(config: Partial<AiProviderConfig>): void
   reset(): void
@@ -35,6 +36,7 @@ export const useDiagnosticStore = create<DiagnosticState>((set) => ({
 
   setSnapshot: (snapshot) => set({ snapshot, recommendation: null }),
   setRecommendation: (recommendation) => set({ recommendation }),
+  clearRecommendation: () => set({ recommendation: null }),
   setProgress: (progress) => set({ progress }),
   setAiConfig: (config) => set((state) => ({ aiConfig: { ...state.aiConfig, ...config } })),
   reset: () => set({ snapshot: null, recommendation: null, progress: null })

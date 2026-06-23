@@ -9,6 +9,7 @@ import type {
 import type { DiagnosticSnapshot, ReportRequest, ReportResult } from '../types/report'
 import type { AiProviderConfig, AiRecommendation } from '../types/ai'
 import type { SerializedError } from '../errors/errors'
+import type { Language } from '../i18n'
 
 /**
  * The single source of truth for the renderer↔main API surface. Both the preload
@@ -38,6 +39,8 @@ export interface RunDiagnosticOptions {
 export interface AnalyzeRequest {
   readonly snapshot: DiagnosticSnapshot
   readonly config: AiProviderConfig
+  /** Output language for the AI recommendation. Defaults to English when omitted. */
+  readonly language?: Language
 }
 
 /** request/response shape for every invoke-style channel. */

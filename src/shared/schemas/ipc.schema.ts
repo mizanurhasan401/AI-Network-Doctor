@@ -31,12 +31,13 @@ export const aiProviderConfigSchema = z
 
 const severity = z.enum(['info', 'warning', 'critical'])
 
+const language = z.enum(['en', 'bn'])
+
 const detectedIssueSchema = z.object({
   id: z.string(),
   area: z.enum(['connectivity', 'dns', 'packetLoss', 'speed', 'latency', 'system']),
   severity,
-  titleBn: z.string(),
-  descriptionBn: z.string()
+  params: z.record(z.union([z.string(), z.number()])).optional()
 })
 
 // The snapshot is produced by our own main process, so we validate shape
@@ -59,7 +60,8 @@ export const diagnosticSnapshotSchema = z
 export const analyzeRequestSchema = z
   .object({
     snapshot: diagnosticSnapshotSchema,
-    config: aiProviderConfigSchema
+    config: aiProviderConfigSchema,
+    language: language.optional()
   })
   .strict()
 
@@ -67,6 +69,7 @@ export const reportRequestSchema = z
   .object({
     snapshot: diagnosticSnapshotSchema,
     recommendation: z.object({}).passthrough().optional(),
-    format: z.enum(['pdf', 'docx', 'txt'])
+    format: z.enum(['pdf', 'docx', 'txt']),
+    language: language.optional()
   })
   .strict()

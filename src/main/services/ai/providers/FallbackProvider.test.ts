@@ -6,11 +6,17 @@ describe('FallbackProvider', () => {
   const provider = new FallbackProvider()
 
   it('returns a low-priority Bangla recommendation for a healthy network', async () => {
-    const rec = await provider.analyze({ snapshot: makeSnapshot() })
+    const rec = await provider.analyze({ snapshot: makeSnapshot(), language: 'bn' })
     expect(rec.priority).toBe('low')
     expect(rec.generatedByFallback).toBe(true)
     expect(rec.solutionsBn.length).toBeGreaterThan(0)
     expect(rec.problemSummaryBn).toMatch(/[ঀ-৿]/) // contains Bangla glyphs
+  })
+
+  it('returns English recommendation text when language is English', async () => {
+    const rec = await provider.analyze({ snapshot: makeSnapshot(), language: 'en' })
+    expect(rec.problemSummaryBn).toContain('health score')
+    expect(rec.problemSummaryBn).not.toMatch(/[ঀ-৿]/)
   })
 
   it('escalates to critical when a critical issue exists', async () => {
@@ -19,9 +25,9 @@ describe('FallbackProvider', () => {
         ...makeSnapshot().connectivity,
         internet: { host: '8.8.8.8', alive: false, sent: 5, received: 0, packetLossPercent: 100, minMs: null, avgMs: null, maxMs: null, jitterMs: null }
       },
-      issues: [{ id: 'no-internet', area: 'connectivity', severity: 'critical', titleBn: 'x', descriptionBn: 'y' }]
+      issues: [{ id: 'no-internet', area: 'connectivity', severity: 'critical' }]
     })
-    const rec = await provider.analyze({ snapshot })
+    const rec = await provider.analyze({ snapshot, language: 'bn' })
     expect(rec.priority).toBe('critical')
     expect(rec.rootCauseBn).toContain('আপলিঙ্ক')
   })

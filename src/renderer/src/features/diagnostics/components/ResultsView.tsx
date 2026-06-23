@@ -1,68 +1,73 @@
 import type { DiagnosticSnapshot } from '@shared/types/report'
+import { issueDescription, issueTitle } from '@shared/i18n'
 import { Card, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Badge } from '../../../components/ui/badge'
 import { Progress } from '../../../components/ui/progress'
-import { scoreTone, SEVERITY_LABEL_BN, severityTone } from '../../health/healthPresentation'
+import { useLanguage, useT } from '../../../i18n/useT'
+import { scoreTone, severityTone } from '../../health/healthPresentation'
 
 const ms = (v: number | null): string => (v === null ? '—' : `${v}ms`)
-const yesNo = (v: boolean): string => (v ? 'হ্যাঁ' : 'না')
 
 export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX.Element {
+  const t = useT()
+  const language = useLanguage()
+  const yesNo = (v: boolean): string => (v ? t('common.yes') : t('common.no'))
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>সংযোগ</CardTitle>
+          <CardTitle>{t('results.connectivity')}</CardTitle>
         </CardHeader>
-        <Row label="গেটওয়ে পিং" value={`${yesNo(snapshot.connectivity.gateway.alive)} · ${ms(snapshot.connectivity.gateway.avgMs)}`} />
-        <Row label="ইন্টারনেট পিং" value={`${yesNo(snapshot.connectivity.internet.alive)} · ${ms(snapshot.connectivity.internet.avgMs)}`} />
-        <Row label="HTTP / HTTPS" value={`${yesNo(snapshot.connectivity.http.ok)} / ${yesNo(snapshot.connectivity.https.ok)}`} />
+        <Row label={t('results.gatewayPing')} value={`${yesNo(snapshot.connectivity.gateway.alive)} · ${ms(snapshot.connectivity.gateway.avgMs)}`} />
+        <Row label={t('results.internetPing')} value={`${yesNo(snapshot.connectivity.internet.alive)} · ${ms(snapshot.connectivity.internet.avgMs)}`} />
+        <Row label={t('results.httpHttps')} value={`${yesNo(snapshot.connectivity.http.ok)} / ${yesNo(snapshot.connectivity.https.ok)}`} />
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>লেটেন্সি ও প্যাকেট লস</CardTitle>
+          <CardTitle>{t('results.latencyPacketLoss')}</CardTitle>
         </CardHeader>
-        <Row label="প্যাকেট লস" value={`${snapshot.packetLoss.lossPercent}%`} />
-        <Row label="গড় লেটেন্সি" value={ms(snapshot.packetLoss.latencyAvgMs)} />
-        <Row label="জিটার" value={ms(snapshot.packetLoss.jitterMs)} />
+        <Row label={t('results.packetLoss')} value={`${snapshot.packetLoss.lossPercent}%`} />
+        <Row label={t('results.avgLatency')} value={ms(snapshot.packetLoss.latencyAvgMs)} />
+        <Row label={t('results.jitter')} value={ms(snapshot.packetLoss.jitterMs)} />
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>ডিএনএস</CardTitle>
+          <CardTitle>{t('results.dns')}</CardTitle>
         </CardHeader>
-        <Row label="গড় রেজোলিউশন" value={ms(snapshot.dns.avgResolveMs)} />
+        <Row label={t('results.avgResolution')} value={ms(snapshot.dns.avgResolveMs)} />
         {snapshot.dns.servers.map((s) => (
-          <Row key={s.server} label={s.server} value={s.reachable ? ms(s.resolveMs) : 'সাড়া নেই'} />
+          <Row key={s.server} label={s.server} value={s.reachable ? ms(s.resolveMs) : t('results.noResponse')} />
         ))}
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>গতি পরীক্ষা</CardTitle>
+          <CardTitle>{t('results.speedTest')}</CardTitle>
         </CardHeader>
         {snapshot.speedTest.available ? (
           <>
-            <Row label="ডাউনলোড" value={`${snapshot.speedTest.downloadMbps ?? '—'} Mbps`} />
-            <Row label="আপলোড" value={`${snapshot.speedTest.uploadMbps ?? '—'} Mbps`} />
-            <Row label="পিং" value={ms(snapshot.speedTest.pingMs)} />
+            <Row label={t('results.download')} value={`${snapshot.speedTest.downloadMbps ?? '—'} Mbps`} />
+            <Row label={t('results.upload')} value={`${snapshot.speedTest.uploadMbps ?? '—'} Mbps`} />
+            <Row label={t('results.ping')} value={ms(snapshot.speedTest.pingMs)} />
           </>
         ) : (
-          <p className="text-sm text-muted">{snapshot.speedTest.error ?? 'গতি পরীক্ষা উপলব্ধ নয়।'}</p>
+          <p className="text-sm text-muted">{t('results.speedUnavailable')}</p>
         )}
       </Card>
 
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>স্বাস্থ্য উপাদান</CardTitle>
+          <CardTitle>{t('results.healthComponents')}</CardTitle>
         </CardHeader>
         <div className="space-y-3">
           {snapshot.health.components.map((c) => (
             <div key={c.key}>
               <div className="mb-1 flex justify-between text-sm">
-                <span>{c.labelBn}</span>
-                <span className="text-muted">{c.measured ? `${c.score}/100` : 'পরিমাপ হয়নি'}</span>
+                <span>{t(`health.${c.key}`)}</span>
+                <span className="text-muted">{c.measured ? `${c.score}/100` : t('results.notMeasured')}</span>
               </div>
               <Progress value={c.measured ? c.score : 0} tone={scoreTone(c.score)} />
             </div>
@@ -72,18 +77,18 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
 
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>সনাক্তকৃত সমস্যা ({snapshot.issues.length})</CardTitle>
+          <CardTitle>{t('results.detectedIssues', { count: snapshot.issues.length })}</CardTitle>
         </CardHeader>
         {snapshot.issues.length === 0 ? (
-          <p className="text-sm text-muted">কোনো সমস্যা শনাক্ত হয়নি।</p>
+          <p className="text-sm text-muted">{t('results.noIssues')}</p>
         ) : (
           <ul className="space-y-2">
             {snapshot.issues.map((i) => (
               <li key={i.id} className="flex items-start gap-3">
-                <Badge tone={severityTone(i.severity)}>{SEVERITY_LABEL_BN[i.severity]}</Badge>
+                <Badge tone={severityTone(i.severity)}>{t(`severity.${i.severity}`)}</Badge>
                 <div>
-                  <p className="text-sm font-medium">{i.titleBn}</p>
-                  <p className="text-xs text-muted">{i.descriptionBn}</p>
+                  <p className="text-sm font-medium">{issueTitle(language, i)}</p>
+                  <p className="text-xs text-muted">{issueDescription(language, i)}</p>
                 </div>
               </li>
             ))}

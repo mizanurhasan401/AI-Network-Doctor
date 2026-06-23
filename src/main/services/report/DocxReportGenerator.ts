@@ -12,13 +12,13 @@ export class DocxReportGenerator implements IReportGenerator {
 
   async render(model: ReportModel): Promise<Uint8Array> {
     const children: Paragraph[] = [
-      new Paragraph({ text: model.titleBn, heading: HeadingLevel.TITLE }),
-      new Paragraph({ children: [new TextRun({ text: `প্রস্তুতের সময়: ${model.generatedAtBn}`, italics: true })] }),
+      new Paragraph({ text: model.title, heading: HeadingLevel.TITLE }),
+      new Paragraph({ children: [new TextRun({ text: model.generatedAtLine, italics: true })] }),
       new Paragraph({ text: '' })
     ]
 
     for (const section of model.sections) {
-      children.push(new Paragraph({ text: section.titleBn, heading: HeadingLevel.HEADING_2 }))
+      children.push(new Paragraph({ text: section.title, heading: HeadingLevel.HEADING_2 }))
       for (const line of section.lines) {
         children.push(new Paragraph({ children: [new TextRun(line)] }))
       }

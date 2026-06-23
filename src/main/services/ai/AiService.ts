@@ -1,5 +1,6 @@
 import type { AiProviderConfig, AiRecommendation } from '@shared/types/ai'
 import type { DiagnosticSnapshot } from '@shared/types/report'
+import { DEFAULT_LANGUAGE, type Language } from '@shared/i18n'
 import { childLogger } from '../../core/logger'
 import { AiProviderFactory } from './AiProviderFactory'
 import { FallbackProvider } from './providers/FallbackProvider'
@@ -17,13 +18,17 @@ export class AiService {
     private readonly fallback = new FallbackProvider()
   ) {}
 
-  async analyze(snapshot: DiagnosticSnapshot, config: AiProviderConfig): Promise<AiRecommendation> {
+  async analyze(
+    snapshot: DiagnosticSnapshot,
+    config: AiProviderConfig,
+    language: Language = DEFAULT_LANGUAGE
+  ): Promise<AiRecommendation> {
     const provider = this.factory.create(config)
     try {
-      return await provider.analyze({ snapshot })
+      return await provider.analyze({ snapshot, language })
     } catch (err) {
       log.warn({ err, provider: provider.id }, 'provider failed; using offline fallback')
-      return this.fallback.analyze({ snapshot })
+      return this.fallback.analyze({ snapshot, language })
     }
   }
 }

@@ -1,5 +1,6 @@
 import type { ReportFormat, ReportRequest } from '@shared/types/report'
 import { ValidationError } from '@shared/errors/errors'
+import { DEFAULT_LANGUAGE, translate } from '@shared/i18n'
 import { buildReportModel } from './ReportModel'
 import { PdfReportGenerator } from './PdfReportGenerator'
 import { DocxReportGenerator } from './DocxReportGenerator'
@@ -25,7 +26,9 @@ export class ReportService {
 
   private resolve(format: ReportFormat): IReportGenerator {
     const generator = this.generators.get(format)
-    if (!generator) throw new ValidationError(`অসমর্থিত রিপোর্ট ফরম্যাট: ${format}`)
+    if (!generator) {
+      throw new ValidationError(translate(DEFAULT_LANGUAGE, 'report.unsupportedFormat', { format }))
+    }
     return generator
   }
 

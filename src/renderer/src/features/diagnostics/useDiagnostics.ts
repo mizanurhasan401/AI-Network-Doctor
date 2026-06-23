@@ -4,6 +4,7 @@ import type { DiagnosticSnapshot, ReportFormat } from '@shared/types/report'
 import type { AiRecommendation } from '@shared/types/ai'
 import { api, unwrap } from '../../api/client'
 import { useDiagnosticStore } from '../../store/diagnosticStore'
+import { useLanguageStore } from '../../store/languageStore'
 
 /** Subscribes the store to live progress events for the duration of a mount. */
 export function useProgressSubscription(): void {
@@ -32,7 +33,8 @@ export function useAnalyze() {
   return useMutation<AiRecommendation, Error, DiagnosticSnapshot>({
     mutationFn: (snapshot) => {
       const config = useDiagnosticStore.getState().aiConfig
-      return unwrap(api().analyzeWithAi({ snapshot, config }))
+      const language = useLanguageStore.getState().language
+      return unwrap(api().analyzeWithAi({ snapshot, config, language }))
     },
     onSuccess: setRecommendation
   })
@@ -43,10 +45,12 @@ export function useExportReport() {
   return useMutation({
     mutationFn: ({ snapshot, format }: { snapshot: DiagnosticSnapshot; format: ReportFormat }) => {
       const recommendation = useDiagnosticStore.getState().recommendation ?? undefined
+      const language = useLanguageStore.getState().language
       return unwrap(
         api().exportReport({
           snapshot,
           format,
+          language,
           ...(recommendation ? { recommendation } : {})
         })
       )

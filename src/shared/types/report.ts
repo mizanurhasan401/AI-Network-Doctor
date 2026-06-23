@@ -9,6 +9,7 @@ import type {
 } from './diagnostics'
 import type { HealthScore } from './health'
 import type { AiRecommendation } from './ai'
+import type { Language } from '../i18n'
 
 /**
  * The full diagnostic snapshot. Held only in memory (per product spec: no
@@ -35,6 +36,8 @@ export interface ReportRequest {
   readonly snapshot: DiagnosticSnapshot
   readonly recommendation?: AiRecommendation
   readonly format: ReportFormat
+  /** Output language for the report. Defaults to English when omitted. */
+  readonly language?: Language
 }
 
 export interface ReportResult {

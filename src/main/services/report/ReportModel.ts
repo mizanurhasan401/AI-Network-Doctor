@@ -1,130 +1,173 @@
 import type { DiagnosticSnapshot, ReportRequest } from '@shared/types/report'
 import type { AiRecommendation } from '@shared/types/ai'
+import {
+  DEFAULT_LANGUAGE,
+  dateLocale,
+  issueDescription,
+  issueTitle,
+  translate,
+  type Language,
+  type MessageKey,
+  type TranslateParams
+} from '@shared/i18n'
 
 export interface ReportSection {
-  readonly titleBn: string
+  readonly title: string
   readonly lines: readonly string[]
 }
 
 export interface ReportModel {
-  readonly titleBn: string
-  readonly generatedAtBn: string
+  readonly title: string
+  readonly generatedAtLine: string
   readonly sections: readonly ReportSection[]
 }
 
-const fmt = (value: number | null, unit = ''): string => (value === null ? 'প্রযোজ্য নয়' : `${value}${unit}`)
-const yesNo = (value: boolean): string => (value ? 'হ্যাঁ' : 'না')
-
 /**
- * Builds the canonical 8-section Bangla report model from a snapshot (+ optional
- * AI recommendation). All three exporters render from this single model, so the
- * formats can never drift apart in content.
+ * Builds the canonical 8-section report model from a snapshot (+ optional AI
+ * recommendation), localized to `request.language` (default English). All three
+ * exporters render from this single model, so formats can never drift apart.
  */
 export function buildReportModel(request: ReportRequest): ReportModel {
   const s = request.snapshot
   const rec = request.recommendation
+  const lang: Language = request.language ?? DEFAULT_LANGUAGE
+  const tt = (key: MessageKey, params?: TranslateParams): string => translate(lang, key, params)
+
+  const na = tt('report.na')
+  const unknown = tt('report.unknown')
+  const fmt = (value: number | null, unit = ''): string => (value === null ? na : `${value}${unit}`)
+  const yesNo = (value: boolean): string => (value ? tt('common.yes') : tt('common.no'))
+  const dateStr = new Date(s.createdAt).toLocaleString(dateLocale(lang))
 
   return {
-    titleBn: 'NetDoctor AI — নেটওয়ার্ক ডায়াগনস্টিক রিপোর্ট',
-    generatedAtBn: new Date(s.createdAt).toLocaleString('bn-BD'),
+    title: tt('report.doc.title'),
+    generatedAtLine: tt('report.generatedBy', { label: dateStr }),
     sections: [
-      summarySection(s),
-      networkInfoSection(s),
-      testResultsSection(s),
-      issuesSection(s),
-      aiAnalysisSection(rec),
-      solutionsSection(rec),
-      healthScoreSection(s),
-      { titleBn: '৮. প্রস্তুতের সময়', lines: [new Date(s.createdAt).toLocaleString('bn-BD')] }
+      summarySection(s, tt, yesNo),
+      networkInfoSection(s, tt, unknown),
+      testResultsSection(s, tt, fmt, yesNo),
+      issuesSection(s, lang, tt),
+      aiAnalysisSection(rec, tt),
+      solutionsSection(rec, tt),
+      healthScoreSection(s, tt),
+      { title: tt('report.section.generatedAt'), lines: [dateStr] }
     ]
   }
 }
 
-function summarySection(s: DiagnosticSnapshot): ReportSection {
+type TT = (key: MessageKey, params?: TranslateParams) => string
+
+function summarySection(s: DiagnosticSnapshot, tt: TT, yesNo: (v: boolean) => string): ReportSection {
   return {
-    titleBn: '১. রিপোর্ট সারাংশ',
+    title: tt('report.section.summary'),
     lines: [
-      `সামগ্রিক স্বাস্থ্য স্কোর: ${s.health.overall}/100 (${s.health.grade})`,
-      `ইন্টারনেট সংযোগ: ${yesNo(s.connectivity.internet.alive)}`,
-      `শনাক্তকৃত সমস্যা: ${s.issues.length}টি`
+      tt('report.field.overallHealth', { score: s.health.overall, grade: tt(`grade.${s.health.grade}`) }),
+      tt('report.field.internetConnection', { value: yesNo(s.connectivity.internet.alive) }),
+      tt('report.field.issueCount', { count: s.issues.length })
     ]
   }
 }
 
-function networkInfoSection(s: DiagnosticSnapshot): ReportSection {
+function networkInfoSection(s: DiagnosticSnapshot, tt: TT, unknown: string): ReportSection {
   return {
-    titleBn: '২. নেটওয়ার্ক তথ্য',
+    title: tt('report.section.network'),
     lines: [
-      `হোস্টনেম: ${s.system.hostname}`,
-      `লোকাল আইপি: ${s.system.localIp}`,
-      `গেটওয়ে আইপি: ${s.system.gatewayIp ?? 'অজানা'}`,
-      `পাবলিক আইপি: ${s.system.publicIp ?? 'অজানা'}`,
-      `ম্যাক ঠিকানা: ${s.system.macAddress ?? 'অজানা'}`,
-      `ডিএনএস সার্ভার: ${s.system.dnsServers.join(', ') || 'নেই'}`,
-      `অপারেটিং সিস্টেম: ${s.system.os.distro} ${s.system.os.release} (${s.system.os.arch})`,
-      `সিপিইউ: ${s.system.cpu.brand} (${s.system.cpu.cores} কোর)`,
-      `র‍্যাম: ${(s.system.ram.totalBytes / 1_073_741_824).toFixed(1)} GB`
+      tt('report.field.hostname', { value: s.system.hostname }),
+      tt('report.field.localIp', { value: s.system.localIp }),
+      tt('report.field.gatewayIp', { value: s.system.gatewayIp ?? unknown }),
+      tt('report.field.publicIp', { value: s.system.publicIp ?? unknown }),
+      tt('report.field.macAddress', { value: s.system.macAddress ?? unknown }),
+      tt('report.field.dnsServers', { value: s.system.dnsServers.join(', ') || tt('report.none') }),
+      tt('report.field.os', {
+        distro: s.system.os.distro,
+        release: s.system.os.release,
+        arch: s.system.os.arch
+      }),
+      tt('report.field.cpu', { brand: s.system.cpu.brand, cores: s.system.cpu.cores }),
+      tt('report.field.ram', { gb: (s.system.ram.totalBytes / 1_073_741_824).toFixed(1) })
     ]
   }
 }
 
-function testResultsSection(s: DiagnosticSnapshot): ReportSection {
+function testResultsSection(
+  s: DiagnosticSnapshot,
+  tt: TT,
+  fmt: (v: number | null, unit?: string) => string,
+  yesNo: (v: boolean) => string
+): ReportSection {
   return {
-    titleBn: '৩. পরীক্ষার ফলাফল',
+    title: tt('report.section.testResults'),
     lines: [
-      `গেটওয়ে পিং: ${yesNo(s.connectivity.gateway.alive)}, গড় ${fmt(s.connectivity.gateway.avgMs, 'ms')}`,
-      `ইন্টারনেট পিং: ${yesNo(s.connectivity.internet.alive)}, গড় ${fmt(s.connectivity.internet.avgMs, 'ms')}`,
-      `HTTP: ${yesNo(s.connectivity.http.ok)}, HTTPS: ${yesNo(s.connectivity.https.ok)}`,
-      `প্যাকেট লস: ${fmt(s.packetLoss.lossPercent, '%')}, জিটার ${fmt(s.packetLoss.jitterMs, 'ms')}`,
-      `ডিএনএস গড় রেজোলিউশন: ${fmt(s.dns.avgResolveMs, 'ms')}`,
-      `ডাউনলোড গতি: ${fmt(s.speedTest.downloadMbps, ' Mbps')}`,
-      `আপলোড গতি: ${fmt(s.speedTest.uploadMbps, ' Mbps')}`,
-      `ট্রেসরুট হপ সংখ্যা: ${s.traceroute.hops.length}`
+      tt('report.field.gatewayPingLine', {
+        alive: yesNo(s.connectivity.gateway.alive),
+        avg: fmt(s.connectivity.gateway.avgMs, 'ms')
+      }),
+      tt('report.field.internetPingLine', {
+        alive: yesNo(s.connectivity.internet.alive),
+        avg: fmt(s.connectivity.internet.avgMs, 'ms')
+      }),
+      tt('report.field.httpHttpsLine', {
+        http: yesNo(s.connectivity.http.ok),
+        https: yesNo(s.connectivity.https.ok)
+      }),
+      tt('report.field.packetLossLine', {
+        loss: fmt(s.packetLoss.lossPercent, '%'),
+        jitter: fmt(s.packetLoss.jitterMs, 'ms')
+      }),
+      tt('report.field.dnsResolveLine', { value: fmt(s.dns.avgResolveMs, 'ms') }),
+      tt('report.field.downloadLine', { value: fmt(s.speedTest.downloadMbps, ' Mbps') }),
+      tt('report.field.uploadLine', { value: fmt(s.speedTest.uploadMbps, ' Mbps') }),
+      tt('report.field.tracerouteHops', { count: s.traceroute.hops.length })
     ]
   }
 }
 
-function issuesSection(s: DiagnosticSnapshot): ReportSection {
+function issuesSection(s: DiagnosticSnapshot, lang: Language, tt: TT): ReportSection {
   if (s.issues.length === 0) {
-    return { titleBn: '৪. সনাক্তকৃত সমস্যা', lines: ['কোনো সমস্যা শনাক্ত হয়নি।'] }
+    return { title: tt('report.section.issues'), lines: [tt('report.empty.issues')] }
   }
   return {
-    titleBn: '৪. সনাক্তকৃত সমস্যা',
-    lines: s.issues.map((i) => `• [${i.severity}] ${i.titleBn} — ${i.descriptionBn}`)
+    title: tt('report.section.issues'),
+    lines: s.issues.map(
+      (i) => `• [${tt(`severity.${i.severity}`)}] ${issueTitle(lang, i)} — ${issueDescription(lang, i)}`
+    )
   }
 }
 
-function aiAnalysisSection(rec: AiRecommendation | undefined): ReportSection {
-  if (!rec) return { titleBn: '৫. AI বিশ্লেষণ', lines: ['AI বিশ্লেষণ পাওয়া যায়নি।'] }
+function aiAnalysisSection(rec: AiRecommendation | undefined, tt: TT): ReportSection {
+  if (!rec) return { title: tt('report.section.ai'), lines: [tt('report.empty.ai')] }
   return {
-    titleBn: '৫. AI বিশ্লেষণ',
+    title: tt('report.section.ai'),
     lines: [
-      `সমস্যা সারাংশ: ${rec.problemSummaryBn}`,
-      `সম্ভাব্য মূল কারণ: ${rec.rootCauseBn}`,
-      `প্রভাব: ${rec.impactBn}`,
-      `অগ্রাধিকার স্তর: ${rec.priority}`,
-      `কনফিডেন্স স্কোর: ${(rec.confidence * 100).toFixed(0)}%`
+      tt('report.field.problemSummary', { value: rec.problemSummaryBn }),
+      tt('report.field.rootCause', { value: rec.rootCauseBn }),
+      tt('report.field.impact', { value: rec.impactBn }),
+      tt('report.field.priorityLevel', { value: tt(`priority.${rec.priority}`) }),
+      tt('report.field.confidenceScore', { value: (rec.confidence * 100).toFixed(0) })
     ]
   }
 }
 
-function solutionsSection(rec: AiRecommendation | undefined): ReportSection {
+function solutionsSection(rec: AiRecommendation | undefined, tt: TT): ReportSection {
   if (!rec || rec.solutionsBn.length === 0) {
-    return { titleBn: '৬. করণীয় সমাধান', lines: ['কোনো নির্দিষ্ট সমাধান নেই।'] }
+    return { title: tt('report.section.solutions'), lines: [tt('report.empty.solutions')] }
   }
   return {
-    titleBn: '৬. করণীয় সমাধান',
+    title: tt('report.section.solutions'),
     lines: rec.solutionsBn.map((sol, idx) => `${idx + 1}. ${sol}`)
   }
 }
 
-function healthScoreSection(s: DiagnosticSnapshot): ReportSection {
+function healthScoreSection(s: DiagnosticSnapshot, tt: TT): ReportSection {
   return {
-    titleBn: '৭. নেটওয়ার্ক স্বাস্থ্য স্কোর',
+    title: tt('report.section.healthScore'),
     lines: [
-      `সামগ্রিক: ${s.health.overall}/100 (${s.health.grade})`,
-      ...s.health.components.map(
-        (c) => `${c.labelBn}: ${c.measured ? `${c.score}/100` : 'পরিমাপ করা হয়নি'}`
+      tt('report.field.overall', { score: s.health.overall, grade: tt(`grade.${s.health.grade}`) }),
+      ...s.health.components.map((c) =>
+        tt('report.field.componentScore', {
+          label: tt(`health.${c.key}`),
+          value: c.measured ? `${c.score}/100` : tt('report.notMeasured')
+        })
       )
     ]
   }
