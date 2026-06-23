@@ -74,7 +74,27 @@ npm run package:mac      # → release/NetDoctor AI-<version>-arm64.dmg  and  -x
 ```
 
 `package:win` / `package:linux` only work **on that OS** — electron-builder targets
-the host platform, so a Mac cannot reliably produce a Windows `.exe` or Linux packages.
+the host platform, so a Mac cannot natively produce a Windows `.exe` or Linux packages.
+
+### Windows build from macOS
+
+- **Intel Mac:** `npm run package:win:docker` cross-builds the NSIS `Setup.exe` in the
+  official Wine image (needs Docker Desktop running; the container uses its own
+  `node_modules`, leaving your host install untouched).
+- **Apple Silicon Mac:** the Docker route builds the app but **cannot produce the
+  `.exe` installer** — electron-builder must run NSIS/rcedit under Wine, which crashes
+  under QEMU emulation on arm64. Use **CI** (below) for a real installer, or ship the
+  **portable zip**: the Docker build still emits `release/win-unpacked/`; zip it
+  (`cd release && ditto -c -k --keepParent win-unpacked NetDoctor-portable.zip`) and the
+  recipient extracts it and runs `NetDoctor AI.exe` directly (no install).
+
+**Recommended for a polished `.exe`:** push to GitHub and tag a release — the
+`windows-latest` CI job builds the signed-metadata NSIS installer natively (no Wine):
+
+```bash
+git push origin main
+git tag v0.1.0 && git push --tags     # → Setup.exe attached to the GitHub Release
+```
 
 ### Build for all three platforms (recommended)
 
