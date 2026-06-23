@@ -49,10 +49,16 @@ src/
 | `npm run build` | Type-check + production bundle |
 | `npm run package` | Build installers (electron-builder) |
 
-## Optional runtime dependencies
+## Speed test
 
-- **Ookla Speedtest CLI** (`speedtest` on PATH) for the speed test. If absent, the
-  app degrades gracefully with `available: false`.
+The speed test needs **no installation**. By default it runs over HTTP against
+Cloudflare's public speed endpoints (`speed.cloudflare.com`) from the main process —
+parallel streams for download/upload, tiny round-trips for latency/jitter, plus a
+free geo-IP lookup for the ISP label and the nearest Cloudflare colo. Behind an
+`ISpeedTestAdapter` seam, so the backend is swappable.
+
+- **Ookla Speedtest CLI** (`speedtest` on PATH) is an *optional* upgrade: if detected
+  it's used automatically for higher accuracy; otherwise the HTTP test is used.
 
 ## Status
 

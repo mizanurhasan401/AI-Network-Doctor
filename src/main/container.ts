@@ -1,5 +1,7 @@
 import { SystemPingAdapter } from './adapters/ping/SystemPingAdapter'
 import { SystemTracerouteAdapter } from './adapters/traceroute/SystemTracerouteAdapter'
+import { HttpSpeedTestAdapter } from './adapters/speedtest/HttpSpeedTestAdapter'
+import { OoklaSpeedTestAdapter } from './adapters/speedtest/OoklaSpeedTestAdapter'
 import { NetworkScannerService } from './services/network/NetworkScannerService'
 import { ConnectivityService } from './services/connectivity/ConnectivityService'
 import { DnsService } from './services/dns/DnsService'
@@ -41,7 +43,7 @@ export function createContainer(): AppContainer {
   const dns = new DnsService()
   const packetLoss = new PacketLossService(pingAdapter)
   const traceroute = new TracerouteService(tracerouteAdapter)
-  const speedTest = new SpeedTestService()
+  const speedTest = new SpeedTestService(new HttpSpeedTestAdapter(), new OoklaSpeedTestAdapter())
   const health = new HealthEngine()
   const issues = new IssueDetector()
 

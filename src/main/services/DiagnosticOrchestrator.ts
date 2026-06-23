@@ -59,7 +59,21 @@ export class DiagnosticOrchestrator {
     )
 
     onProgress({ stage: 'speedTest', labelBn: 'গতি পরীক্ষা চলছে', percent: 80 })
-    const speedTest = await this.s.speedTest.run()
+    const speedLabel = {
+      latency: 'লেটেন্সি মাপা হচ্ছে',
+      download: 'ডাউনলোড গতি মাপা হচ্ছে',
+      upload: 'আপলোড গতি মাপা হচ্ছে'
+    } as const
+    const speedTest = await this.s.speedTest.run((sp) =>
+      onProgress({
+        stage: 'speedTest',
+        labelBn: speedLabel[sp.phase],
+        // Map the speed test's own 0–100 into the overall 80→95 band.
+        percent: Math.round(80 + (sp.percent / 100) * 15),
+        phase: sp.phase,
+        currentMbps: sp.currentMbps
+      })
+    )
 
     onProgress({ stage: 'health', labelBn: 'স্বাস্থ্য স্কোর গণনা হচ্ছে', percent: 95 })
     const healthInput: HealthInput = { connectivity, dns, packetLoss, speedTest }

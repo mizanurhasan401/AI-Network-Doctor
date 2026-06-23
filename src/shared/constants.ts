@@ -19,3 +19,26 @@ export const PUBLIC_IP_URL = 'https://api.ipify.org'
 export const PING_SAMPLE_COUNT = 5
 export const PACKET_LOSS_SAMPLE_COUNT = 20
 export const TRACEROUTE_MAX_HOPS = 30
+
+/**
+ * Cloudflare's public speed-test backend (the same endpoints its browser speed
+ * test uses). No API key, global Anycast — lets us measure throughput without the
+ * customer installing any CLI. The adapter seam keeps these swappable.
+ */
+export const CLOUDFLARE_SPEEDTEST_DOWN_URL = 'https://speed.cloudflare.com/__down'
+export const CLOUDFLARE_SPEEDTEST_UP_URL = 'https://speed.cloudflare.com/__up'
+/** Returns the serving Cloudflare colo (nearest test server) as `key=value` lines. */
+export const CLOUDFLARE_TRACE_URL = 'https://speed.cloudflare.com/cdn-cgi/trace'
+
+/** Free, no-key geo-IP lookup used to label the ISP + city (best-effort). */
+export const IP_GEO_LOOKUP_URL = 'http://ip-api.com/json/?fields=status,country,city,isp,org'
+
+/** Overall budget for the HTTP speed test before it is aborted. */
+export const SPEED_TEST_TIMEOUT_MS = 60_000
+/** Steady-state measurement window for each throughput phase. */
+export const SPEED_TEST_DOWNLOAD_DURATION_MS = 10_000
+export const SPEED_TEST_UPLOAD_DURATION_MS = 10_000
+/** Parallel connections used to saturate the link (single stream underestimates). */
+export const SPEED_TEST_PARALLEL_STREAMS = 6
+/** Number of tiny round-trips sampled to derive latency + jitter. */
+export const SPEED_TEST_LATENCY_SAMPLES = 10

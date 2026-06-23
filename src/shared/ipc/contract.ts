@@ -75,6 +75,10 @@ export interface ProgressEvent {
   readonly stage: DiagnosticStage
   readonly labelBn: string
   readonly percent: number
+  /** Speed-test sub-phase (only set while `stage === 'speedTest'`). */
+  readonly phase?: 'latency' | 'download' | 'upload'
+  /** Live throughput for the active speed-test phase, in Mbps. */
+  readonly currentMbps?: number | null
 }
 
 /** The typed API exposed on `window.netdoctor` by the preload bridge. */

@@ -31,7 +31,11 @@ export default function DiagnosticsPage(): JSX.Element {
         <Card>
           <div className="mb-2 flex justify-between text-sm">
             <span>{progress.labelBn}</span>
-            <span className="text-muted">{progress.percent}%</span>
+            <span className="text-muted">
+              {progress.stage === 'speedTest' && progress.currentMbps != null
+                ? `${progress.currentMbps} Mbps · ${progress.percent}%`
+                : `${progress.percent}%`}
+            </span>
           </div>
           <Progress value={progress.percent} />
         </Card>
