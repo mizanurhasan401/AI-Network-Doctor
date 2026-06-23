@@ -60,7 +60,49 @@ free geo-IP lookup for the ISP label and the nearest Cloudflare colo. Behind an
 - **Ookla Speedtest CLI** (`speedtest` on PATH) is an *optional* upgrade: if detected
   it's used automatically for higher accuracy; otherwise the HTTP test is used.
 
+## Build & distribute
+
+Installers are produced by **electron-builder** (config in `electron-builder.yml`)
+and land in `release/`. The app icon comes from `build/icon.png` (regenerate with
+`node scripts/generate-icon.mjs`); the Bangla PDF font ships from `resources/fonts/`
+via `extraResources`.
+
+### Build for your own machine (macOS)
+
+```bash
+npm run package:mac      # → release/NetDoctor AI-<version>-arm64.dmg  and  -x64.dmg
+```
+
+`package:win` / `package:linux` only work **on that OS** — electron-builder targets
+the host platform, so a Mac cannot reliably produce a Windows `.exe` or Linux packages.
+
+### Build for all three platforms (recommended)
+
+Use CI — `.github/workflows/release.yml` builds on native macOS / Windows / Linux
+runners. Trigger it one of two ways:
+
+```bash
+git tag v0.1.0 && git push --tags     # builds + publishes a GitHub Release
+```
+
+…or run the **“Build installers”** workflow manually (Actions → Run workflow) and
+download the `.dmg` / `.exe` / `.AppImage` + `.deb` from the run's artifacts.
+
+### Send & install
+
+Builds are **unsigned**, so recipients see a one-time OS security prompt:
+
+| OS | Install | Bypass the unsigned warning |
+| --- | --- | --- |
+| **macOS** (`.dmg`) | Open the dmg, drag the app to Applications | Right-click the app → **Open** → **Open**, or `xattr -cr "/Applications/NetDoctor AI.app"` |
+| **Windows** (`Setup.exe`) | Run the installer | SmartScreen → **More info** → **Run anyway** |
+| **Linux** | `chmod +x *.AppImage && ./NetDoctor*.AppImage`, or `sudo dpkg -i NetDoctor*.deb` | — |
+
+Removing these prompts requires code signing (Apple Developer ID + notarization,
+Windows Authenticode) — a follow-up that needs paid certificates.
+
 ## Status
 
-Phase 1 (diagnostics + IPC + UI) and Phase 2 (AI engine + Bangla reports) are
-implemented. Phase 3 router connectors are architecture-only (`IRouterConnector`).
+Phase 1 (diagnostics + IPC + UI) and Phase 2 (AI engine + reports) are implemented,
+with an English/Bangla i18n system across the UI, reports, and AI output. Phase 3
+router connectors are architecture-only (`IRouterConnector`).

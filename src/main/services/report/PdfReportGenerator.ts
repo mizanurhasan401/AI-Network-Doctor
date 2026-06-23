@@ -1,3 +1,8 @@
+// @pdf-lib/fontkit's complex-script (Bengali) shaping path references a global
+// `regeneratorRuntime` that modern Node/Electron don't provide. This side-effect
+// import installs it, so embedding the Bengali font + drawing Bangla text works.
+// Must run before any fontkit shaping.
+import 'regenerator-runtime/runtime.js'
 import { readFile } from 'node:fs/promises'
 import fontkit from '@pdf-lib/fontkit'
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'

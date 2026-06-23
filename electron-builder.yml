@@ -7,9 +7,16 @@ directories:
 files:
   - out/**/*
   - package.json
-asarUnpack:
-  - resources/**
+# Ship the resources/ folder (Bangla PDF font, etc.) into the packaged app at
+# Contents/Resources/resources — exactly where src/main/core/resources.ts resolves
+# it via process.resourcesPath. (A files-allowlist excludes resources/ from the
+# asar, so an asarUnpack rule alone would never ship it.)
+extraResources:
+  - from: resources
+    to: resources
+    filter: ['**/*']
 win:
+  icon: build/icon.png
   target:
     - target: nsis
       arch: [x64]
@@ -19,11 +26,13 @@ nsis:
   allowToChangeInstallationDirectory: true
 mac:
   category: public.app-category.utilities
+  icon: build/icon.png
   target:
     - target: dmg
       arch: [x64, arm64]
   artifactName: ${productName}-${version}-${arch}.${ext}
 linux:
+  icon: build/icon.png
   target:
     - AppImage
     - deb
