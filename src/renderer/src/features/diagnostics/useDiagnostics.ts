@@ -18,7 +18,15 @@ export function useRunDiagnostic() {
   const setProgress = useDiagnosticStore((s) => s.setProgress)
 
   return useMutation<DiagnosticSnapshot>({
-    mutationFn: () => unwrap(api().runFullDiagnostic({})),
+    mutationFn: () => {
+      const { pingCount, packetSizeBytes } = useDiagnosticStore.getState().probeConfig
+      return unwrap(
+        api().runFullDiagnostic({
+          ...(pingCount != null ? { pingCount } : {}),
+          ...(packetSizeBytes != null ? { packetSizeBytes } : {})
+        })
+      )
+    },
     onSuccess: (snapshot) => {
       setSnapshot(snapshot)
       setProgress(null)

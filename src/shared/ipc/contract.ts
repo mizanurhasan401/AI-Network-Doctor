@@ -34,6 +34,13 @@ export type IpcChannelName = (typeof IpcChannel)[keyof typeof IpcChannel]
 export interface RunDiagnosticOptions {
   /** Public host used for internet ping / packet-loss / traceroute targets. */
   readonly probeHost?: string
+  /**
+   * Number of ICMP echoes per ping probe. Higher counts make packet-loss readings
+   * trustworthy (1 drop of 100 = 1%, vs 1 of 5 = 20%). Capped by `MAX_PING_COUNT`.
+   */
+  readonly pingCount?: number
+  /** Custom ICMP payload size in bytes (`ping -s`/`-l`). Omit for the OS default. */
+  readonly packetSizeBytes?: number
 }
 
 export interface AnalyzeRequest {

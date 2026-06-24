@@ -21,6 +21,20 @@ export const PACKET_LOSS_SAMPLE_COUNT = 20
 export const TRACEROUTE_MAX_HOPS = 30
 
 /**
+ * Upper bound on ping count requested from the renderer. A single dropped packet
+ * out of 5 reads as 20% loss; sending more packets (e.g. 100) makes the loss
+ * figure trustworthy. Capped so a runaway count can't stall the exec timeout.
+ */
+export const MAX_PING_COUNT = 200
+
+/**
+ * Bounds for a custom ICMP payload size (bytes). 0 is valid (header-only probe);
+ * the upper bound stays under the classic 65507-byte IPv4 payload ceiling.
+ */
+export const MIN_PING_SIZE_BYTES = 0
+export const MAX_PING_SIZE_BYTES = 65500
+
+/**
  * Cloudflare's public speed-test backend (the same endpoints its browser speed
  * test uses). No API key, global Anycast — lets us measure throughput without the
  * customer installing any CLI. The adapter seam keeps these swappable.

@@ -19,13 +19,27 @@ export class IssueDetector {
       issues.push({ id: 'gateway-unreachable', area: 'connectivity', severity: 'critical' })
     }
 
-    if (packetLoss.lossPercent >= 5) {
-      issues.push({
-        id: 'packet-loss',
-        area: 'packetLoss',
-        severity: packetLoss.lossPercent >= 15 ? 'critical' : 'warning',
-        params: { lossPercent: packetLoss.lossPercent }
-      })
+    // Packet-loss detection is sample-aware so a single stray drop doesn't read
+    // as "unreachable". 1 of 5 packets is 20% loss but tells us almost nothing;
+    // we only flag a true total outage, or ≥2 drops at a meaningful percentage
+    // (so larger sample counts, e.g. 100 pings, make the verdict trustworthy).
+    if (packetLoss.sent > 0) {
+      const lost = packetLoss.sent - packetLoss.received
+      if (packetLoss.received === 0) {
+        issues.push({
+          id: 'packet-loss',
+          area: 'packetLoss',
+          severity: 'critical',
+          params: { lossPercent: packetLoss.lossPercent }
+        })
+      } else if (lost >= 2 && packetLoss.lossPercent >= 5) {
+        issues.push({
+          id: 'packet-loss',
+          area: 'packetLoss',
+          severity: packetLoss.lossPercent >= 15 ? 'critical' : 'warning',
+          params: { lossPercent: packetLoss.lossPercent }
+        })
+      }
     }
 
     if (connectivity.internet.avgMs !== null && connectivity.internet.avgMs > 150) {

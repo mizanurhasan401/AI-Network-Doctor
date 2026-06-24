@@ -6,6 +6,12 @@
 export interface PingProbeOptions {
   readonly count: number
   readonly perPingTimeoutMs?: number
+  /**
+   * Custom ICMP payload size in bytes. Maps to `ping -s` (Unix) / `-l` (Windows).
+   * Omit to use the OS default (56 bytes payload / 64-byte packet on Unix,
+   * 32 bytes on Windows).
+   */
+  readonly sizeBytes?: number
 }
 
 export interface PingProbeResult {

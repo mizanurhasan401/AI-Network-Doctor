@@ -13,8 +13,27 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
   const language = useLanguage()
   const yesNo = (v: boolean): string => (v ? t('common.yes') : t('common.no'))
 
+  const dash = (v: string | null): string => v ?? '—'
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>{t('results.systemInfo')}</CardTitle>
+        </CardHeader>
+        <Row label={t('results.hostname')} value={dash(snapshot.system.hostname)} />
+        <Row label={t('results.localIp')} value={dash(snapshot.system.localIp)} />
+        <Row
+          label={t('results.routerGateway')}
+          value={`${dash(snapshot.system.gatewayIp)} · ${t('results.gatewayReachable')}: ${yesNo(snapshot.connectivity.gateway.alive)}`}
+        />
+        <Row label={t('results.internetGateway')} value={dash(snapshot.system.publicIp)} />
+        <Row
+          label={t('results.dnsServersLabel')}
+          value={snapshot.system.dnsServers.length > 0 ? snapshot.system.dnsServers.join(', ') : '—'}
+        />
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>{t('results.connectivity')}</CardTitle>

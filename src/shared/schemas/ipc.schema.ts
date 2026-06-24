@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MAX_PING_COUNT, MAX_PING_SIZE_BYTES, MIN_PING_SIZE_BYTES } from '../constants'
 
 /**
  * Zod schemas validate every inbound IPC payload at the main-process boundary
@@ -15,7 +16,9 @@ const hostname = z
 
 export const runDiagnosticOptionsSchema = z
   .object({
-    probeHost: hostname.optional()
+    probeHost: hostname.optional(),
+    pingCount: z.number().int().min(1).max(MAX_PING_COUNT).optional(),
+    packetSizeBytes: z.number().int().min(MIN_PING_SIZE_BYTES).max(MAX_PING_SIZE_BYTES).optional()
   })
   .strict()
 

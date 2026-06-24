@@ -72,6 +72,24 @@ const en = {
   'results.detectedIssues': 'Detected issues ({count})',
   'results.noIssues': 'No issues detected.',
 
+  // Network & system info card
+  'results.systemInfo': 'Network & system info',
+  'results.hostname': 'Hostname',
+  'results.localIp': 'Local IP',
+  'results.routerGateway': 'Router gateway',
+  'results.gatewayReachable': 'Gateway reachable',
+  'results.internetGateway': 'Internet (public) IP',
+  'results.dnsServersLabel': 'DNS servers',
+
+  // Probe (test) settings
+  'probe.title': 'Test settings',
+  'probe.pingCount': 'Ping count',
+  'probe.packetSize': 'Packet size',
+  'probe.default': 'Default',
+  'probe.bytes': '{value} bytes',
+  'probe.countHint': 'More pings make the packet-loss % more reliable.',
+  'probe.sizeHint': 'Custom ICMP payload size per ping.',
+
   // Health component labels (by HealthComponentKey)
   'health.connectivity': 'Connectivity',
   'health.dns': 'DNS',
@@ -313,6 +331,24 @@ const bn: Record<MessageKey, string> = {
   'results.notMeasured': 'পরিমাপ হয়নি',
   'results.detectedIssues': 'সনাক্তকৃত সমস্যা ({count})',
   'results.noIssues': 'কোনো সমস্যা শনাক্ত হয়নি।',
+
+  // Network & system info card
+  'results.systemInfo': 'নেটওয়ার্ক ও সিস্টেম তথ্য',
+  'results.hostname': 'হোস্টনেম',
+  'results.localIp': 'লোকাল আইপি',
+  'results.routerGateway': 'রাউটার গেটওয়ে',
+  'results.gatewayReachable': 'গেটওয়ে নাগালযোগ্য',
+  'results.internetGateway': 'ইন্টারনেট (পাবলিক) আইপি',
+  'results.dnsServersLabel': 'ডিএনএস সার্ভার',
+
+  // Probe (test) settings
+  'probe.title': 'পরীক্ষার সেটিংস',
+  'probe.pingCount': 'পিং সংখ্যা',
+  'probe.packetSize': 'প্যাকেট সাইজ',
+  'probe.default': 'ডিফল্ট',
+  'probe.bytes': '{value} বাইট',
+  'probe.countHint': 'বেশি পিং দিলে প্যাকেট লস % আরও নির্ভরযোগ্য হয়।',
+  'probe.sizeHint': 'প্রতি পিং-এ কাস্টম ICMP পেলোড সাইজ।',
 
   // Health component labels
   'health.connectivity': 'সংযোগ',

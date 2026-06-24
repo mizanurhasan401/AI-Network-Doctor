@@ -31,7 +31,9 @@ export function registerIpcHandlers(container: AppContainer): void {
     const system = await container.scanner.scan()
     return container.connectivity.run({
       gatewayIp: system.gatewayIp,
-      ...(opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {})
+      ...(opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {}),
+      ...(opts.pingCount !== undefined ? { pingCount: opts.pingCount } : {}),
+      ...(opts.packetSizeBytes !== undefined ? { packetSizeBytes: opts.packetSizeBytes } : {})
     })
   })
 
@@ -41,7 +43,11 @@ export function registerIpcHandlers(container: AppContainer): void {
   })
 
   registerInvoke(IpcChannel.RunPacketLoss, runDiagnosticOptionsSchema, (opts) =>
-    container.packetLoss.run(opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {})
+    container.packetLoss.run({
+      ...(opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {}),
+      ...(opts.pingCount !== undefined ? { pingCount: opts.pingCount } : {}),
+      ...(opts.packetSizeBytes !== undefined ? { packetSizeBytes: opts.packetSizeBytes } : {})
+    })
   )
 
   registerInvoke(IpcChannel.RunTraceroute, runDiagnosticOptionsSchema, (opts) =>
@@ -55,7 +61,11 @@ export function registerIpcHandlers(container: AppContainer): void {
       if (!event.sender.isDestroyed()) event.sender.send(IpcChannel.Progress, progress)
     }
     return container.orchestrator.run(
-      opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {},
+      {
+        ...(opts.probeHost !== undefined ? { probeHost: opts.probeHost } : {}),
+        ...(opts.pingCount !== undefined ? { pingCount: opts.pingCount } : {}),
+        ...(opts.packetSizeBytes !== undefined ? { packetSizeBytes: opts.packetSizeBytes } : {})
+      },
       emit
     )
   })

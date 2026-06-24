@@ -10,9 +10,15 @@ import { avg, jitter, round } from '../../core/stats'
 export class PacketLossService {
   constructor(private readonly ping: IPingAdapter) {}
 
-  async run(options: { probeHost?: string } = {}): Promise<PacketLossResult> {
+  async run(
+    options: { probeHost?: string; pingCount?: number; packetSizeBytes?: number } = {}
+  ): Promise<PacketLossResult> {
     const host = options.probeHost ?? DEFAULT_PROBE_HOST
-    const probe = await this.ping.ping(host, { count: PACKET_LOSS_SAMPLE_COUNT })
+    const count = options.pingCount ?? PACKET_LOSS_SAMPLE_COUNT
+    const probe = await this.ping.ping(host, {
+      count,
+      ...(options.packetSizeBytes !== undefined ? { sizeBytes: options.packetSizeBytes } : {})
+    })
 
     return {
       host,

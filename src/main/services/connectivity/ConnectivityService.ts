@@ -6,6 +6,10 @@ import { toPingStats } from './pingStats'
 export interface ConnectivityRunOptions {
   readonly gatewayIp: string | null
   readonly probeHost?: string
+  /** ICMP echoes per probe. Defaults to `PING_SAMPLE_COUNT`. */
+  readonly pingCount?: number
+  /** Custom ICMP payload size in bytes. Omit for the OS default. */
+  readonly packetSizeBytes?: number
 }
 
 /**
@@ -18,10 +22,11 @@ export class ConnectivityService {
 
   async run(options: ConnectivityRunOptions): Promise<ConnectivityResult> {
     const probeHost = options.probeHost ?? DEFAULT_PROBE_HOST
+    const count = options.pingCount ?? PING_SAMPLE_COUNT
 
     const [gateway, internet, http, https] = await Promise.all([
-      this.pingOrDead(options.gatewayIp),
-      this.pingHost(probeHost),
+      this.pingOrDead(options.gatewayIp, count, options.packetSizeBytes),
+      this.pingHost(probeHost, count, options.packetSizeBytes),
       this.httpCheck(HTTP_CHECK_URL),
       this.httpCheck(HTTPS_CHECK_URL)
     ])
@@ -29,12 +34,19 @@ export class ConnectivityService {
     return { gateway, internet, http, https }
   }
 
-  private async pingHost(host: string): Promise<PingStats> {
-    const probe = await this.ping.ping(host, { count: PING_SAMPLE_COUNT })
+  private async pingHost(host: string, count: number, sizeBytes?: number): Promise<PingStats> {
+    const probe = await this.ping.ping(host, {
+      count,
+      ...(sizeBytes !== undefined ? { sizeBytes } : {})
+    })
     return toPingStats(probe)
   }
 
-  private async pingOrDead(host: string | null): Promise<PingStats> {
+  private async pingOrDead(
+    host: string | null,
+    count: number,
+    sizeBytes?: number
+  ): Promise<PingStats> {
     if (!host) {
       return {
         host: 'unknown',
@@ -48,7 +60,7 @@ export class ConnectivityService {
         jitterMs: null
       }
     }
-    return this.pingHost(host)
+    return this.pingHost(host, count, sizeBytes)
   }
 
   private async httpCheck(url: string): Promise<HttpCheck> {

@@ -13,7 +13,13 @@ export class SystemPingAdapter implements IPingAdapter {
   async ping(host: string, options: PingProbeOptions): Promise<PingProbeResult> {
     const count = Math.max(1, options.count)
     const isWindows = process.platform === 'win32'
-    const args = isWindows ? ['-n', String(count), host] : ['-c', String(count), host]
+    const args = isWindows ? ['-n', String(count)] : ['-c', String(count)]
+    // Custom payload size: `-l` on Windows, `-s` on Unix. Both take payload bytes.
+    if (typeof options.sizeBytes === 'number' && Number.isFinite(options.sizeBytes) && options.sizeBytes >= 0) {
+      const size = Math.floor(options.sizeBytes)
+      args.push(isWindows ? '-l' : '-s', String(size))
+    }
+    args.push(host)
     // Generous overall budget: count pings + per-reply wait, capped by exec timeout.
     const timeoutMs = Math.max(8000, count * 1500 + 4000)
 

@@ -36,22 +36,27 @@ export class DiagnosticOrchestrator {
     options: RunDiagnosticOptions,
     onProgress: ProgressEmitter = () => {}
   ): Promise<DiagnosticSnapshot> {
+    // Forward only the explicitly-set probe knobs; services fall back to defaults.
+    const probeOpts = {
+      ...(options.probeHost !== undefined ? { probeHost: options.probeHost } : {}),
+      ...(options.pingCount !== undefined ? { pingCount: options.pingCount } : {}),
+      ...(options.packetSizeBytes !== undefined ? { packetSizeBytes: options.packetSizeBytes } : {})
+    }
+
     onProgress({ stage: 'system', labelBn: 'সিস্টেম স্ক্যান হচ্ছে', percent: 5 })
     const system = await this.s.scanner.scan()
 
     onProgress({ stage: 'connectivity', labelBn: 'সংযোগ পরীক্ষা হচ্ছে', percent: 25 })
     const connectivity = await this.s.connectivity.run({
       gatewayIp: system.gatewayIp,
-      ...(options.probeHost !== undefined ? { probeHost: options.probeHost } : {})
+      ...probeOpts
     })
 
     onProgress({ stage: 'dns', labelBn: 'ডিএনএস বিশ্লেষণ হচ্ছে', percent: 40 })
     const dns = await this.s.dns.run({ servers: system.dnsServers })
 
     onProgress({ stage: 'packetLoss', labelBn: 'প্যাকেট লস পরিমাপ হচ্ছে', percent: 55 })
-    const packetLoss = await this.s.packetLoss.run(
-      options.probeHost !== undefined ? { probeHost: options.probeHost } : {}
-    )
+    const packetLoss = await this.s.packetLoss.run(probeOpts)
 
     onProgress({ stage: 'traceroute', labelBn: 'নেটওয়ার্ক পথ অনুসন্ধান হচ্ছে', percent: 70 })
     const traceroute = await this.s.traceroute.run(

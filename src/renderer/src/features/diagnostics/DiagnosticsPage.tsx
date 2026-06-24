@@ -8,6 +8,7 @@ import { useDiagnosticStore } from '../../store/diagnosticStore'
 import { useT, type TFunction } from '../../i18n/useT'
 import { useProgressSubscription, useRunDiagnostic } from './useDiagnostics'
 import { ResultsView } from './components/ResultsView'
+import { ProbeControls } from './components/ProbeControls'
 import { AiPanel } from '../ai/AiPanel'
 import { ReportPanel } from '../report/ReportPanel'
 
@@ -38,6 +39,8 @@ export default function DiagnosticsPage(): JSX.Element {
           {run.isPending ? t('diagnostics.running') : t('diagnostics.startButton')}
         </Button>
       </header>
+
+      {!run.isPending && <ProbeControls />}
 
       {run.isPending && progress && (
         <Card>
