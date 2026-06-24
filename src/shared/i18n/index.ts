@@ -131,6 +131,17 @@ const en = {
   'router.connUsername': 'Connection username',
   'router.unknown': 'Unknown',
 
+  // Problem localization
+  'diagnosis.title': 'Where is the problem?',
+  'diagnosis.ok': 'No major fault — your router and the internet both look healthy.',
+  'diagnosis.local': 'The problem is on YOUR side (PC ↔ router) — not the ISP.',
+  'diagnosis.localWifi': 'Most likely your Wi-Fi (weak signal / interference).',
+  'diagnosis.localHint': 'Restart the router, move closer, or use an Ethernet cable. If the loss is gone on cable, it was Wi-Fi.',
+  'diagnosis.isp': 'The problem is BEYOND your router — most likely your internet provider (ISP).',
+  'diagnosis.ispHint': 'Your router answers cleanly but the internet hop loses packets — contact your ISP.',
+  'diagnosis.detail': 'Loss to router: {gw} · Loss to internet: {net}',
+  'diagnosis.lowSamples': 'For a more reliable verdict, raise the ping count (e.g. 100) and re-run.',
+
   // Health component labels (by HealthComponentKey)
   'health.connectivity': 'Connectivity',
   'health.dns': 'DNS',
@@ -431,6 +442,17 @@ const bn: Record<MessageKey, string> = {
   'router.connectionType': 'কানেকশন টাইপ',
   'router.connUsername': 'কানেকশন ইউজারনেম',
   'router.unknown': 'অজানা',
+
+  // Problem localization
+  'diagnosis.title': 'সমস্যা কোথায়?',
+  'diagnosis.ok': 'বড় কোনো সমস্যা নেই — রাউটার ও ইন্টারনেট দুটোই ঠিক আছে।',
+  'diagnosis.local': 'সমস্যা আপনার দিকে (কম্পিউটার ↔ রাউটার) — ISP-র নয়।',
+  'diagnosis.localWifi': 'সম্ভবত আপনার Wi-Fi (দুর্বল সিগন্যাল / interference)।',
+  'diagnosis.localHint': 'রাউটার রিস্টার্ট দিন, কাছে যান, বা তার (Ethernet) ব্যবহার করুন। তারে loss চলে গেলে এটা Wi-Fi-র সমস্যা ছিল।',
+  'diagnosis.isp': 'সমস্যা রাউটারের পরে — সম্ভবত আপনার ইন্টারনেট প্রোভাইডার (ISP)।',
+  'diagnosis.ispHint': 'রাউটার পরিষ্কার সাড়া দিচ্ছে কিন্তু ইন্টারনেট হপে packet হারাচ্ছে — ISP-কে জানান।',
+  'diagnosis.detail': 'রাউটার পর্যন্ত loss: {gw} · ইন্টারনেট পর্যন্ত loss: {net}',
+  'diagnosis.lowSamples': 'আরও নির্ভরযোগ্য ফলের জন্য ping সংখ্যা বাড়ান (যেমন ১০০) আর আবার চালান।',
 
   // Health component labels
   'health.connectivity': 'সংযোগ',

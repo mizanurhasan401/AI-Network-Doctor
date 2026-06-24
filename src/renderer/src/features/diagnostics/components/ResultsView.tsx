@@ -1,5 +1,6 @@
 import type { DiagnosticSnapshot } from '@shared/types/report'
 import { issueDescription, issueTitle } from '@shared/i18n'
+import { localizeProblem } from '@shared/diagnosis/localize'
 import { Card, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Badge } from '../../../components/ui/badge'
 import { Progress } from '../../../components/ui/progress'
@@ -14,9 +15,37 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
   const yesNo = (v: boolean): string => (v ? t('common.yes') : t('common.no'))
 
   const dash = (v: string | null): string => v ?? '—'
+  const pct = (v: number | null): string => (v === null ? '—' : `${v}%`)
+
+  const loc = localizeProblem({
+    gatewayReachable: snapshot.connectivity.gateway.alive,
+    gatewayLossPercent: snapshot.connectivity.gateway.packetLossPercent,
+    internetLossPercent: snapshot.packetLoss.lossPercent,
+    linkType: snapshot.system.linkType
+  })
+  const locTone = loc.location === 'ok' ? 'success' : loc.location === 'local' ? 'warning' : 'danger'
+  const lowSamples = snapshot.connectivity.gateway.sent < 20 || snapshot.packetLoss.sent < 20
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>{t('diagnosis.title')}</CardTitle>
+        </CardHeader>
+        <div className="space-y-2">
+          <Badge tone={locTone}>{t(`diagnosis.${loc.location}`)}</Badge>
+          {loc.likelyWifi && <p className="text-sm font-medium">{t('diagnosis.localWifi')}</p>}
+          <p className="text-sm text-muted">
+            {t('diagnosis.detail', { gw: pct(loc.gatewayLossPercent), net: pct(loc.internetLossPercent) })}
+          </p>
+          {loc.location === 'local' && <p className="text-xs text-muted">{t('diagnosis.localHint')}</p>}
+          {loc.location === 'isp' && <p className="text-xs text-muted">{t('diagnosis.ispHint')}</p>}
+          {lowSamples && loc.location !== 'ok' && (
+            <p className="text-xs text-warning">{t('diagnosis.lowSamples')}</p>
+          )}
+        </div>
+      </Card>
+
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>{t('results.systemInfo')}</CardTitle>
