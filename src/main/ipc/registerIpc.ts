@@ -8,8 +8,10 @@ import { DEFAULT_LANGUAGE, translate } from '@shared/i18n'
 import {
   analyzeRequestSchema,
   reportRequestSchema,
+  routerRequestSchema,
   runDiagnosticOptionsSchema
 } from '@shared/schemas/ipc.schema'
+import type { RouterRequest } from '@shared/types/router'
 import type { AppContainer } from '../container'
 import { registerInvoke } from './handler'
 
@@ -75,6 +77,14 @@ export function registerIpcHandlers(container: AppContainer): void {
     const req = raw as unknown as AnalyzeRequest
     return container.ai.analyze(req.snapshot, req.config, req.language)
   })
+
+  registerInvoke(IpcChannel.RouterFetchInfo, routerRequestSchema, (raw) =>
+    container.router.fetchInfo(raw as unknown as RouterRequest)
+  )
+
+  registerInvoke(IpcChannel.RouterReboot, routerRequestSchema, (raw) =>
+    container.router.reboot(raw as unknown as RouterRequest)
+  )
 
   registerInvoke(IpcChannel.ExportReport, reportRequestSchema, async (raw, event) => {
     const req = raw as unknown as ReportRequest

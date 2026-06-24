@@ -8,6 +8,7 @@ import type {
 } from '../types/diagnostics'
 import type { DiagnosticSnapshot, ReportRequest, ReportResult } from '../types/report'
 import type { AiProviderConfig, AiRecommendation } from '../types/ai'
+import type { RouterInfo, RouterRequest } from '../types/router'
 import type { SerializedError } from '../errors/errors'
 import type { Language } from '../i18n'
 
@@ -26,6 +27,8 @@ export const IpcChannel = {
   RunFullDiagnostic: 'diagnostic:run-full',
   AnalyzeWithAi: 'ai:analyze',
   ExportReport: 'report:export',
+  RouterFetchInfo: 'router:fetch-info',
+  RouterReboot: 'router:reboot',
   Progress: 'diagnostic:progress'
 } as const
 
@@ -61,6 +64,12 @@ export interface IpcContract {
   [IpcChannel.RunFullDiagnostic]: { request: RunDiagnosticOptions; response: DiagnosticSnapshot }
   [IpcChannel.AnalyzeWithAi]: { request: AnalyzeRequest; response: AiRecommendation }
   [IpcChannel.ExportReport]: { request: ReportRequest; response: ReportResult }
+  [IpcChannel.RouterFetchInfo]: { request: RouterRequest; response: RouterInfo }
+  [IpcChannel.RouterReboot]: { request: RouterRequest; response: RouterRebootResult }
+}
+
+export interface RouterRebootResult {
+  readonly rebooting: boolean
 }
 
 export type InvokeChannel = keyof IpcContract
@@ -102,5 +111,7 @@ export interface NetDoctorApi {
   runFullDiagnostic(opts?: RunDiagnosticOptions): Promise<IpcResult<DiagnosticSnapshot>>
   analyzeWithAi(req: AnalyzeRequest): Promise<IpcResult<AiRecommendation>>
   exportReport(req: ReportRequest): Promise<IpcResult<ReportResult>>
+  routerFetchInfo(req: RouterRequest): Promise<IpcResult<RouterInfo>>
+  routerReboot(req: RouterRequest): Promise<IpcResult<RouterRebootResult>>
   onProgress(listener: (event: ProgressEvent) => void): () => void
 }

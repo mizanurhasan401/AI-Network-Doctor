@@ -10,6 +10,10 @@ export interface SystemInfo {
   readonly hostname: string
   readonly localIp: string
   readonly gatewayIp: string | null
+  /** MAC address of the default gateway (router), resolved from the ARP table. */
+  readonly gatewayMac: string | null
+  /** Best-effort router brand from the gateway MAC's OUI (null if unknown). */
+  readonly routerVendor: string | null
   readonly dnsServers: readonly string[]
   readonly publicIp: string | null
   readonly macAddress: string | null

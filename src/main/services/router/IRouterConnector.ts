@@ -1,34 +1,25 @@
 /**
- * Extensible router-connector architecture. Future vendor connectors (Mikrotik,
- * TP-Link, Huawei, ZTE, Tenda) implement this single interface. No vendor logic
- * exists yet and none lives in the UI — the renderer only ever sees this contract
- * and the vendor-neutral DTOs below.
+ * Extensible router-connector architecture. Vendor connectors (TP-Link today;
+ * MikroTik/Huawei/ZTE/Tenda later) implement this single interface. The renderer
+ * only ever sees the vendor-neutral DTOs in `@shared/types/router` — never a
+ * concrete connector.
  *
  * SECURITY: connectors receive credentials per-call and MUST NOT persist them.
  */
 
-export type RouterVendor = 'mikrotik' | 'tplink' | 'huawei' | 'zte' | 'tenda'
+import type {
+  RouterCredentials,
+  RouterDeviceInfo,
+  RouterVendor,
+  RouterWanStatus
+} from '@shared/types/router'
 
-export interface RouterCredentials {
-  readonly host: string
-  readonly username: string
-  /** Held only for the lifetime of the call; never stored or logged. */
-  readonly password: string
-  readonly port?: number
-}
-
-export interface RouterDeviceInfo {
-  readonly vendor: RouterVendor
-  readonly model: string | null
-  readonly firmware: string | null
-  readonly uptimeSeconds: number | null
-}
-
-export interface RouterWanStatus {
-  readonly connected: boolean
-  readonly wanIp: string | null
-  readonly uptimeSeconds: number | null
-}
+export type {
+  RouterCredentials,
+  RouterDeviceInfo,
+  RouterVendor,
+  RouterWanStatus
+} from '@shared/types/router'
 
 export interface IRouterConnector {
   readonly vendor: RouterVendor
@@ -39,6 +30,9 @@ export interface IRouterConnector {
   getDeviceInfo(): Promise<RouterDeviceInfo>
 
   getWanStatus(): Promise<RouterWanStatus>
+
+  /** Reboot the router. Caller is responsible for confirming with the user. */
+  reboot(): Promise<void>
 
   /** Release any session/handles. Always safe to call. */
   disconnect(): Promise<void>

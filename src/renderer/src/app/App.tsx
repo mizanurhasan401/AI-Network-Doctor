@@ -6,6 +6,7 @@ import { useT } from '../i18n/useT'
 // Lazy-loaded routes → code splitting + minimal startup cost (perf requirement).
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage'))
 const DiagnosticsPage = lazy(() => import('../features/diagnostics/DiagnosticsPage'))
+const RouterPage = lazy(() => import('../features/router/RouterPage'))
 
 function RouteFallback(): JSX.Element {
   const t = useT()
@@ -30,6 +31,14 @@ export function App(): JSX.Element {
             element={
               <Suspense fallback={<RouteFallback />}>
                 <DiagnosticsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="router"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <RouterPage />
               </Suspense>
             }
           />

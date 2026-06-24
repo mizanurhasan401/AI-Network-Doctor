@@ -9,6 +9,8 @@ export function makeSnapshot(overrides: Partial<DiagnosticSnapshot> = {}): Diagn
       hostname: 'test-host',
       localIp: '192.168.1.10',
       gatewayIp: '192.168.1.1',
+      gatewayMac: 'AA:BB:CC:DD:EE:FF',
+      routerVendor: 'TP-Link',
       dnsServers: ['1.1.1.1'],
       publicIp: '203.0.113.5',
       macAddress: 'aa:bb:cc:dd:ee:ff',

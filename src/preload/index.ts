@@ -7,6 +7,7 @@ import type {
   RunDiagnosticOptions
 } from '@shared/ipc/contract'
 import type { ReportRequest } from '@shared/types/report'
+import type { RouterRequest } from '@shared/types/router'
 
 /**
  * The preload bridge. Runs in an isolated context with Node access and exposes a
@@ -27,6 +28,8 @@ const api: NetDoctorApi = {
     ipcRenderer.invoke(IpcChannel.RunFullDiagnostic, opts ?? {}),
   analyzeWithAi: (req: AnalyzeRequest) => ipcRenderer.invoke(IpcChannel.AnalyzeWithAi, req),
   exportReport: (req: ReportRequest) => ipcRenderer.invoke(IpcChannel.ExportReport, req),
+  routerFetchInfo: (req: RouterRequest) => ipcRenderer.invoke(IpcChannel.RouterFetchInfo, req),
+  routerReboot: (req: RouterRequest) => ipcRenderer.invoke(IpcChannel.RouterReboot, req),
   onProgress: (listener: (event: ProgressEvent) => void) => {
     const handler = (_e: IpcRendererEvent, payload: ProgressEvent): void => listener(payload)
     ipcRenderer.on(IpcChannel.Progress, handler)

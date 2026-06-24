@@ -76,3 +76,18 @@ export const reportRequestSchema = z
     language: language.optional()
   })
   .strict()
+
+export const routerRequestSchema = z
+  .object({
+    vendor: z.enum(['mikrotik', 'tplink', 'huawei', 'zte', 'tenda']),
+    credentials: z
+      .object({
+        host: hostname,
+        username: z.string().trim().min(1).max(64),
+        // Passwords can legitimately be empty on some routers; cap the length only.
+        password: z.string().max(128),
+        port: z.number().int().min(1).max(65535).optional()
+      })
+      .strict()
+  })
+  .strict()

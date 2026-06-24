@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Activity, LayoutDashboard, Stethoscope } from 'lucide-react'
+import { Activity, LayoutDashboard, Router as RouterIcon, Stethoscope } from 'lucide-react'
 import type { MessageKey } from '@shared/i18n'
 import { cn } from '../lib/utils'
 import { useT } from '../i18n/useT'
@@ -7,7 +7,8 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher'
 
 const NAV: readonly { to: string; labelKey: MessageKey; icon: typeof LayoutDashboard; end: boolean }[] = [
   { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard, end: true },
-  { to: '/diagnostics', labelKey: 'nav.diagnostics', icon: Stethoscope, end: false }
+  { to: '/diagnostics', labelKey: 'nav.diagnostics', icon: Stethoscope, end: false },
+  { to: '/router', labelKey: 'nav.router', icon: RouterIcon, end: false }
 ]
 
 export function Layout(): JSX.Element {

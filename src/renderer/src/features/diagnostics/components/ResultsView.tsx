@@ -40,6 +40,12 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
           label={t('results.routerGateway')}
           value={`${dash(snapshot.system.gatewayIp)} · ${t('results.gatewayReachable')}: ${yesNo(snapshot.connectivity.gateway.alive)}`}
         />
+        <Row
+          label={t('results.routerBrand')}
+          value={`${snapshot.system.routerVendor ?? t('results.linkSpeedUnknown')}${
+            snapshot.system.gatewayMac ? ` · ${snapshot.system.gatewayMac}` : ''
+          }`}
+        />
         <Row label={t('results.internetGateway')} value={dash(snapshot.system.publicIp)} />
         <Row
           label={t('results.dnsServersLabel')}

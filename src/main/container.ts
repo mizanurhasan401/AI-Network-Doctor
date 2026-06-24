@@ -13,6 +13,8 @@ import { IssueDetector } from './services/health/IssueDetector'
 import { DiagnosticOrchestrator } from './services/DiagnosticOrchestrator'
 import { AiService } from './services/ai/AiService'
 import { ReportService } from './services/report/ReportService'
+import { RouterConnectorFactory } from './services/router/RouterConnectorFactory'
+import { RouterService } from './services/router/RouterService'
 
 /**
  * Composition root. All concrete dependencies are constructed here exactly once
@@ -32,6 +34,7 @@ export interface AppContainer {
   readonly orchestrator: DiagnosticOrchestrator
   readonly ai: AiService
   readonly reports: ReportService
+  readonly router: RouterService
 }
 
 export function createContainer(): AppContainer {
@@ -69,6 +72,7 @@ export function createContainer(): AppContainer {
     issues,
     orchestrator,
     ai: new AiService(),
-    reports: new ReportService()
+    reports: new ReportService(),
+    router: new RouterService(new RouterConnectorFactory())
   }
 }

@@ -4,6 +4,8 @@ import si from 'systeminformation'
 import type { SystemInfo } from '@shared/types/diagnostics'
 import { PUBLIC_IP_URL } from '@shared/constants'
 import { childLogger } from '../../core/logger'
+import { execCommand } from '../../core/exec'
+import { lookupVendor, normalizeMac } from '../router/ouiLookup'
 
 const log = childLogger('NetworkScanner')
 
@@ -26,10 +28,15 @@ export class NetworkScannerService {
     const list = Array.isArray(ifaces) ? ifaces : [ifaces]
     const primary = list.find((i) => i.iface === defaultIface) ?? list.find((i) => i.ip4 && !i.internal)
 
+    const gatewayMac = await this.gatewayMac(gateway)
+    const routerVendor = gatewayMac ? await lookupVendor(gatewayMac) : null
+
     return {
       hostname: os.hostname(),
       localIp: primary?.ip4 ?? this.firstLocalIp(),
       gatewayIp: gateway,
+      gatewayMac,
+      routerVendor,
       dnsServers: this.dnsServers(),
       publicIp,
       macAddress: primary?.mac ?? null,
@@ -60,6 +67,39 @@ export class NetworkScannerService {
    */
   private normalizeSpeed(speed: number | null | undefined): number | null {
     return typeof speed === 'number' && speed > 0 ? speed : null
+  }
+
+  /**
+   * Resolves the gateway's MAC from the OS ARP table. A quick ping first ensures
+   * the entry is populated. Best-effort: any failure (no route, locked-down OS)
+   * returns null so the rest of the scan is unaffected.
+   */
+  private async gatewayMac(gateway: string | null): Promise<string | null> {
+    if (!gateway) return null
+    const isWindows = process.platform === 'win32'
+    try {
+      await execCommand(
+        'ping',
+        isWindows ? ['-n', '1', gateway] : ['-c', '1', gateway],
+        { timeoutMs: 3000, allowNonZeroExit: true }
+      )
+      const { stdout } = await execCommand('arp', isWindows ? ['-a', gateway] : ['-n', gateway], {
+        timeoutMs: 3000,
+        allowNonZeroExit: true
+      })
+      return this.parseArpMac(stdout)
+    } catch (err) {
+      log.warn({ err }, 'gateway MAC lookup failed')
+      return null
+    }
+  }
+
+  /** Extract the first MAC from `arp` output and normalize to AA:BB:CC:DD:EE:FF. */
+  private parseArpMac(output: string): string | null {
+    const m = output.match(/([0-9a-f]{1,2}[:-]){5}[0-9a-f]{1,2}/i)
+    if (!m) return null
+    const norm = normalizeMac(m[0])
+    return norm ? (norm.match(/.{2}/g)?.join(':') ?? null) : null
   }
 
   /** Map `systeminformation`'s interface `type` to our coarse medium classes. */
