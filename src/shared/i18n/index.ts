@@ -80,6 +80,12 @@ const en = {
   'results.gatewayReachable': 'Gateway reachable',
   'results.internetGateway': 'Internet (public) IP',
   'results.dnsServersLabel': 'DNS servers',
+  'results.linkSpeed': 'LAN port link speed',
+  'results.linkSpeedValue': '{value} Mbps',
+  'results.linkSpeedUnknown': 'Unknown',
+  'results.linkWifi': 'Wi-Fi',
+  'results.linkWired': 'Wired (Ethernet)',
+  'results.linkWifiNote': 'Wi-Fi link rate fluctuates and is a snapshot — not a fixed cap. Use the speed test for actual throughput.',
 
   // Probe (test) settings
   'probe.title': 'Test settings',
@@ -340,6 +346,12 @@ const bn: Record<MessageKey, string> = {
   'results.gatewayReachable': 'গেটওয়ে নাগালযোগ্য',
   'results.internetGateway': 'ইন্টারনেট (পাবলিক) আইপি',
   'results.dnsServersLabel': 'ডিএনএস সার্ভার',
+  'results.linkSpeed': 'LAN পোর্ট লিংক স্পিড',
+  'results.linkSpeedValue': '{value} Mbps',
+  'results.linkSpeedUnknown': 'অজানা',
+  'results.linkWifi': 'Wi-Fi',
+  'results.linkWired': 'তার (Ethernet)',
+  'results.linkWifiNote': 'Wi-Fi লিংক রেট ওঠানামা করে — এটা এক মুহূর্তের snapshot, fixed সীমা নয়। আসল গতি জানতে speed test দেখুন।',
 
   // Probe (test) settings
   'probe.title': 'পরীক্ষার সেটিংস',

@@ -24,6 +24,19 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
         <Row label={t('results.hostname')} value={dash(snapshot.system.hostname)} />
         <Row label={t('results.localIp')} value={dash(snapshot.system.localIp)} />
         <Row
+          label={t('results.linkSpeed')}
+          value={
+            (snapshot.system.linkSpeedMbps != null
+              ? t('results.linkSpeedValue', { value: snapshot.system.linkSpeedMbps })
+              : t('results.linkSpeedUnknown')) +
+            (snapshot.system.linkType === 'wireless'
+              ? ` · ${t('results.linkWifi')}`
+              : snapshot.system.linkType === 'wired'
+                ? ` · ${t('results.linkWired')}`
+                : '')
+          }
+        />
+        <Row
           label={t('results.routerGateway')}
           value={`${dash(snapshot.system.gatewayIp)} · ${t('results.gatewayReachable')}: ${yesNo(snapshot.connectivity.gateway.alive)}`}
         />
@@ -32,6 +45,9 @@ export function ResultsView({ snapshot }: { snapshot: DiagnosticSnapshot }): JSX
           label={t('results.dnsServersLabel')}
           value={snapshot.system.dnsServers.length > 0 ? snapshot.system.dnsServers.join(', ') : '—'}
         />
+        {snapshot.system.linkType === 'wireless' && (
+          <p className="mt-2 text-xs text-muted">{t('results.linkWifiNote')}</p>
+        )}
       </Card>
 
       <Card>

@@ -12,6 +12,8 @@ export function makeSnapshot(overrides: Partial<DiagnosticSnapshot> = {}): Diagn
       dnsServers: ['1.1.1.1'],
       publicIp: '203.0.113.5',
       macAddress: 'aa:bb:cc:dd:ee:ff',
+      linkSpeedMbps: 1000,
+      linkType: 'wired',
       os: { platform: 'darwin', distro: 'macOS', release: '15.0', arch: 'arm64' },
       cpu: { manufacturer: 'Apple', brand: 'M1', cores: 8, speedGHz: 3.2 },
       ram: { totalBytes: 17_179_869_184, freeBytes: 8_000_000_000 }

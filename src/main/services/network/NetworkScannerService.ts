@@ -33,6 +33,8 @@ export class NetworkScannerService {
       dnsServers: this.dnsServers(),
       publicIp,
       macAddress: primary?.mac ?? null,
+      linkSpeedMbps: this.normalizeSpeed(primary?.speed),
+      linkType: this.normalizeLinkType(primary?.type),
       os: {
         platform: osInfo.platform,
         distro: osInfo.distro,
@@ -50,6 +52,20 @@ export class NetworkScannerService {
         freeBytes: mem.available
       }
     }
+  }
+
+  /**
+   * Interface link speed in Mbps. `systeminformation` reports `-1` (or null) when
+   * the OS can't determine it (common on macOS Wi-Fi) — normalize those to null.
+   */
+  private normalizeSpeed(speed: number | null | undefined): number | null {
+    return typeof speed === 'number' && speed > 0 ? speed : null
+  }
+
+  /** Map `systeminformation`'s interface `type` to our coarse medium classes. */
+  private normalizeLinkType(type: string | null | undefined): 'wired' | 'wireless' | 'other' | null {
+    if (type === 'wired' || type === 'wireless') return type
+    return type ? 'other' : null
   }
 
   private dnsServers(): string[] {

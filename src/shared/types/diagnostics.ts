@@ -13,6 +13,14 @@ export interface SystemInfo {
   readonly dnsServers: readonly string[]
   readonly publicIp: string | null
   readonly macAddress: string | null
+  /** Negotiated link speed of the active LAN/Wi-Fi port in Mbps (null if unknown). */
+  readonly linkSpeedMbps: number | null
+  /**
+   * Medium of the active interface. On `wireless` the speed is an instantaneous
+   * PHY rate that fluctuates and must not be read as a fixed cap; on `wired` it's
+   * the stable negotiated Ethernet rate (100/1000/…).
+   */
+  readonly linkType: 'wired' | 'wireless' | 'other' | null
   readonly os: {
     readonly platform: string
     readonly distro: string
